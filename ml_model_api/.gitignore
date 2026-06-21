@@ -1,0 +1,10 @@
+# Python environment and cache files
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Jupyter and ML artifacts
+.ipynb_checkpoints/
+*.joblib
+*.pkl
