@@ -10,8 +10,6 @@ interface PredictionResult {
 }
 
 export default function Dashboard() {
-  // ENGR NOTE: Centralized state management for all model features.
-  // Default values represent a 'safe' baseline customer profile.
   const [formData, setFormData] = useState({
     CreditScore: 650,
     Age: 40,
@@ -25,8 +23,10 @@ export default function Dashboard() {
 
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // ENGR NOTE: Added strict error state to prevent UI crashes like NaN%
+  const [error, setError] = useState<string | null>(null);
 
-  // ENGR NOTE: Universal handler for all inputs to keep the codebase DRY (Don't Repeat Yourself).
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -35,21 +35,47 @@ export default function Dashboard() {
     }));
   };
 
-  // ENGR NOTE: Async fetch wrapper to communicate with our Python XGBoost microservice.
   const analyzeRisk = async () => {
+    // 1. Reset states for a fresh request
     setLoading(true);
+    setError(null); 
+    setResult(null);
+
+    console.log("📡 [Network] Initiating API request with payload:", formData);
+
     try {
-      const response = await fetch("https://bank-churn-api-2skp.onrender.com", {
+      // ENGR NOTE: BUG FIXED - Added the full endpoint path to the URL
+      const response = await fetch("https://bank-churn-api-2skp.onrender.com/api/v1/predict/churn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
+      console.log(`🚥 [Network] Received Status Code: ${response.status}`);
+
+      // 2. Catch HTTP errors (like 404 Not Found, or 422 Unprocessable Entity)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error("❌ [Network] Server responded with error:", errorData);
+        throw new Error(`API rejected request (Status: ${response.status})`);
+      }
+
+      // 3. Parse and validate the successful data
       const data = await response.json();
+      console.log("✅ [Network] Successful Payload received:", data);
+      
+      if (typeof data.churn_probability !== 'number') {
+        throw new Error("Invalid payload: Missing churn_probability");
+      }
+
       setResult(data);
-    } catch (error) {
-      console.error("API Gateway Error:", error);
+
+    } catch (err: any) {
+      console.error("🔥 [Gateway] Frontend Exception caught:", err.message);
+      setError(err.message || "Failed to connect to the prediction server.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -77,17 +103,13 @@ export default function Dashboard() {
               <label className="text-sm font-semibold text-slate-600 flex justify-between">
                 <span>Credit Score</span>
                 <input 
-                  type="number" 
-                  name="CreditScore" 
-                  value={formData.CreditScore} 
-                  onChange={handleChange}
+                  type="number" name="CreditScore" value={formData.CreditScore} onChange={handleChange}
                   className="w-20 text-right border rounded px-2 py-1 text-sm bg-slate-50"
                 />
               </label>
               <input 
                 type="range" min="300" max="850" name="CreditScore" 
-                value={formData.CreditScore} onChange={handleChange} 
-                className="w-full accent-green-700"
+                value={formData.CreditScore} onChange={handleChange} className="w-full accent-green-700"
               />
             </div>
 
@@ -102,8 +124,7 @@ export default function Dashboard() {
               </label>
               <input 
                 type="range" min="18" max="100" name="Age" 
-                value={formData.Age} onChange={handleChange} 
-                className="w-full accent-green-700"
+                value={formData.Age} onChange={handleChange} className="w-full accent-green-700"
               />
             </div>
 
@@ -118,8 +139,7 @@ export default function Dashboard() {
               </label>
               <input 
                 type="range" min="0" max="250000" step="1000" name="Balance" 
-                value={formData.Balance} onChange={handleChange} 
-                className="w-full accent-green-700"
+                value={formData.Balance} onChange={handleChange} className="w-full accent-green-700"
               />
             </div>
 
@@ -184,7 +204,15 @@ export default function Dashboard() {
         <div className="space-y-6">
           {/* Output Widget */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center min-h-[250px] flex flex-col justify-center">
-            {result ? (
+            
+            {/* Conditional Error State Rendering */}
+            {error ? (
+              <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
+                <h3 className="font-bold mb-1">System Error</h3>
+                <p className="text-sm">{error}</p>
+                <p className="text-xs mt-2 text-red-400">Check the browser console (F12) for detailed logs.</p>
+              </div>
+            ) : result ? (
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">Churn Probability</h3>
                 <p className="text-6xl font-black mb-4 text-slate-800">
