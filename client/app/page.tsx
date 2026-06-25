@@ -53,11 +53,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 p-8 font-sans text-slate-800">
+    <div className="min-h-screen bg-neutral-100 p-8 font-sans text-slate-800">
       
       {/* PAGE HEADER */}
       <div className="max-w-7xl mx-auto mb-10">
-        <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-2">
+        <h1 className="text-4xl md:text-5xl font-black text-neutral-900 tracking-tight mb-2">
           AI Customer Churn Predictor
         </h1>
         <p className="text-lg text-slate-500 font-medium">
@@ -69,7 +69,7 @@ export default function Dashboard() {
         
         {/* LEFT PANE: Interactive Model Inputs */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Customer Profile Parameters</h2>
+          <h2 className="text-2xl font-bold text-neutral-900 mb-6">Customer Profile Parameters</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Range Slider + Number Input Component (Credit Score) */}
@@ -87,7 +87,7 @@ export default function Dashboard() {
               <input 
                 type="range" min="300" max="850" name="CreditScore" 
                 value={formData.CreditScore} onChange={handleChange} 
-                className="w-full accent-blue-600"
+                className="w-full accent-green-700"
               />
             </div>
 
@@ -103,7 +103,7 @@ export default function Dashboard() {
               <input 
                 type="range" min="18" max="100" name="Age" 
                 value={formData.Age} onChange={handleChange} 
-                className="w-full accent-blue-600"
+                className="w-full accent-green-700"
               />
             </div>
 
@@ -119,7 +119,7 @@ export default function Dashboard() {
               <input 
                 type="range" min="0" max="250000" step="1000" name="Balance" 
                 value={formData.Balance} onChange={handleChange} 
-                className="w-full accent-blue-600"
+                className="w-full accent-green-700"
               />
             </div>
 
@@ -174,7 +174,7 @@ export default function Dashboard() {
           <button 
             onClick={analyzeRisk}
             disabled={loading}
-            className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.99] disabled:opacity-70"
+            className="mt-8 w-full bg-green-700 hover:bg-green-900 text-white font-bold py-4 rounded-xl transition-all active:scale-[0.99] disabled:opacity-70"
           >
             {loading ? "Running AI Inference..." : "Execute Risk Analysis"}
           </button>
@@ -207,19 +207,19 @@ export default function Dashboard() {
             <h3 className="text-lg font-bold text-white mb-4">Pipeline Architecture</h3>
             <ul className="space-y-3 text-sm">
               <li className="flex gap-2">
-                <span className="text-blue-400 font-bold">1.</span>
+                <span className="text-green-700 font-bold">1.</span>
                 <p><strong>Payload:</strong> The React client sends the 8 parameters via REST to the FastAPI backend.</p>
               </li>
               <li className="flex gap-2">
-                <span className="text-blue-400 font-bold">2.</span>
-                <p><strong>Preprocessing:</strong> A serialized <code className="bg-slate-700 px-1 rounded text-pink-300">RobustScaler</code> standardizes the input array to prevent distance distortion.</p>
+                <span className="text-green-700 font-bold">2.</span>
+                <p><strong>Preprocessing:</strong> A serialized <code className="bg-slate-700 px-1 rounded text-green-300">RobustScaler</code> standardizes the input array to prevent distance distortion.</p>
               </li>
               <li className="flex gap-2">
-                <span className="text-blue-400 font-bold">3.</span>
+                <span className="text-green-700 font-bold">3.</span>
                 <p><strong>Inference:</strong> The XGBoost ensemble model scores the scaled data against historical churn patterns.</p>
               </li>
               <li className="flex gap-2">
-                <span className="text-blue-400 font-bold">4.</span>
+                <span className="text-green-700 font-bold">4.</span>
                 <p><strong>Threshold Logic:</strong> Applies our custom-tuned F1-optimized threshold (0.5877) to determine the final Boolean flag.</p>
               </li>
             </ul>

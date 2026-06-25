@@ -6,5 +6,3 @@ __pycache__/
 
 # Jupyter and ML artifacts
 .ipynb_checkpoints/
-*.joblib
-*.pkl

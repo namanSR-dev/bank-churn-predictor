@@ -11,7 +11,7 @@ app = FastAPI(title="Bank Churn Prediction API", version="1.0.0")
 # This tells Python to allow requests from your Next.js local server
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], 
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
